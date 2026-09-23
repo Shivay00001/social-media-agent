@@ -28,3 +28,14 @@ npm run dev
 
 ## Coordination & Automation
 This agent is part of a larger ecosystem. It can be executed natively via its UI, or coordinated as a node in a multi-agent pipeline using the Central Connector System.
+
+## ▶️ Run (backend API)
+
+```bash
+cp .env.example .env   # add real LLM keys
+pip install -r backend/requirements.txt
+uvicorn backend.server:app --host 0.0.0.0 --port 8000
+# Frontend (Next.js) lives in frontend/ -> deploy separately, e.g. Cloudflare Pages
+```
+
+Docker: `docker build -t $r . && docker run -p 8000:8000 --env-file .env $r`

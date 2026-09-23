@@ -14,8 +14,8 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 import litellm
 
-from database import engine, Base, SessionLocal, get_db
-from models import Setting, ExecutionLog
+from backend.database import engine, Base, SessionLocal, get_db
+from backend.models import Setting, ExecutionLog
 
 load_dotenv()
 
