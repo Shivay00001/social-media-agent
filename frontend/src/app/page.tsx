@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 
 export default function Home() {
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8008';
   const [provider, setProvider] = useState('gpt-4o');
+  const [apiKey, setApiKey] = useState('');
   const [keys, setKeys] = useState({
     openai: '',
     anthropic: '',
@@ -21,6 +23,7 @@ export default function Home() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    setApiKey(localStorage.getItem('sm_api_key') || process.env.NEXT_PUBLIC_API_KEY || '');
     setKeys({
       openai: localStorage.getItem('sm_openai_key') || '',
       anthropic: localStorage.getItem('sm_anthropic_key') || '',
@@ -32,7 +35,9 @@ export default function Home() {
     if (taskId && (status === 'pending' || status === 'running')) {
       interval = setInterval(async () => {
         try {
-          const res = await fetch(`http://localhost:8008/api/tasks/${taskId}`);
+          const res = await fetch(`${API_BASE}/api/tasks/${taskId}`, {
+            headers: { 'X-API-Key': apiKey },
+          });
           if (res.ok) {
             const data = await res.json();
             setStatus(data.status);
@@ -66,15 +71,17 @@ export default function Home() {
     setCsvOutput('');
     
     try {
+      localStorage.setItem('sm_api_key', apiKey);
       localStorage.setItem('sm_openai_key', keys.openai);
       localStorage.setItem('sm_anthropic_key', keys.anthropic);
       localStorage.setItem('sm_gemini_key', keys.gemini);
       localStorage.setItem('sm_glm_key', keys.glm);
 
-      const res = await fetch('http://localhost:8008/api/execute', {
+      const res = await fetch(`${API_BASE}/api/execute`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
+          'X-API-Key': apiKey,
           'X-OpenAI-Key': keys.openai,
           'X-Anthropic-Key': keys.anthropic,
           'X-Gemini-Key': keys.gemini,
@@ -124,6 +131,11 @@ export default function Home() {
         <div style={{flex: '1 1 400px'}}>
           <div className="panel">
             <h2 className="panel-title">Universal API Gateway</h2>
+
+            <div className="form-group">
+              <label>Backend API Key (X-API-Key)</label>
+              <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="Matches API_KEY in backend .env" />
+            </div>
             
             <div className="form-group">
               <label>OpenAI API Key</label>
